@@ -1,30 +1,50 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div>
+    <form>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" v-model="username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" v-model="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      error: null,
+    };
+  },
+  methods: {
+    async submitForm() {
+      try {
+        const response = await axios.post('/api/login.php', {
+          username: this.username,
+          password: this.password,
+        });
+        const token = response.data.token;
+        // 將JWT令牌存儲在應用程式狀態中
+        this.$store.commit('setToken', token);
+        // 將用戶重定向到用戶記事本頁面
+        this.$router.push('/user');
+      } catch (error) {
+        this.error = error.response.data.message;
+      }
+    },
+  },
+};
+</script>
